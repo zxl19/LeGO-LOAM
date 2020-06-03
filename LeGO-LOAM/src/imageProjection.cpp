@@ -227,10 +227,67 @@ public:
             }
             else{
                 verticalAngle = atan2(thisPoint.z, sqrt(thisPoint.x * thisPoint.x + thisPoint.y * thisPoint.y)) * 180 / M_PI;
-                rowIdn = (verticalAngle + ang_bottom) / ang_res_y;
+                int tmp = round(verticalAngle);
+                // rowIdn = (verticalAngle + ang_bottom) / ang_res_y;
+                if (verticalAngle < 1.7 && verticalAngle > -4.7)
+                {
+                    rowIdn = round(verticalAngle / ang_res_y) + 20;
+                }
+                else if (tmp == 15)
+                {
+                    rowIdn = 31;
+                }
+                else if (tmp == 10)
+                {
+                    rowIdn = 30;
+                }
+                else if (tmp == 7)
+                {
+                    rowIdn = 29;
+                }
+                else if (tmp == 5)
+                {
+                    rowIdn = 28;
+                }
+                else if (tmp == 3)
+                {
+                    rowIdn = 27;
+                }
+                else if (tmp == 2 && verticalAngle > 2)
+                {
+                    rowIdn = 26;
+                }
+                else if (tmp == -5 && verticalAngle < -5)
+                {
+                    rowIdn = 5;
+                }
+                else if (tmp == -6)
+                {
+                    rowIdn = 4;
+                }
+                else if (tmp == -8)
+                {
+                    rowIdn = 3;
+                }
+                else if (tmp == -10)
+                {
+                    rowIdn = 2;
+                }
+                else if (tmp == -15)
+                {
+                    rowIdn = 1;
+                }
+                else if (tmp == -25)
+                {
+                    rowIdn = 0;
+                }
+                else
+                {
+                    continue;
+                }
             }
-            if (rowIdn < 0 || rowIdn >= N_SCAN)
-                continue;
+            // if (rowIdn < 0 || rowIdn >= N_SCAN)
+            //     continue;
 
             horizonAngle = atan2(thisPoint.x, thisPoint.y) * 180 / M_PI;
 
