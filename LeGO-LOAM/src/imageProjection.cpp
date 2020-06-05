@@ -227,8 +227,9 @@ public:
             }
             else{
                 verticalAngle = atan2(thisPoint.z, sqrt(thisPoint.x * thisPoint.x + thisPoint.y * thisPoint.y)) * 180 / M_PI;
-                int tmp = round(verticalAngle);
                 // rowIdn = (verticalAngle + ang_bottom) / ang_res_y;
+                // *RS-LiDAR-32
+                int tmp = round(verticalAngle);
                 if (verticalAngle < 1.7 && verticalAngle > -4.7)
                 {
                     rowIdn = round(verticalAngle / ang_res_y) + 20;
