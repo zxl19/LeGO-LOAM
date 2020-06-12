@@ -174,7 +174,7 @@ public:
             if (laserCloudInRing->is_dense == false) {
                 ROS_ERROR("Point cloud is not in dense format, please remove NaN points first!");
                 ros::shutdown();
-            }  
+            }
         }
     }
     
