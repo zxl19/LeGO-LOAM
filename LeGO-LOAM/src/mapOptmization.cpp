@@ -932,7 +932,7 @@ public:
         float noiseScore = icp.getFitnessScore();
         Vector6 << noiseScore, noiseScore, noiseScore, noiseScore, noiseScore, noiseScore;
         constraintNoise = noiseModel::Diagonal::Variances(Vector6);
-        /* 
+        /*
         	add constraints
         	*/
         std::lock_guard<std::mutex> lock(mtx);
@@ -956,7 +956,7 @@ public:
     void extractSurroundingKeyFrames(){
 
         if (cloudKeyPoses3D->points.empty() == true)
-            return;	
+            return;
 		
     	if (loopClosureEnableFlag == true){
     	    // only use recent key poses for graph building
