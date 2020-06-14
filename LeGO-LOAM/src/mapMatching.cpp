@@ -3,6 +3,7 @@
 # include "utility.h"
 #include <iostream>
 
+#include <pcl/io/pcd_io.h>
 #include <pcl/point_types.h>
 #include <pcl/visualization/pcl_visualizer.h>
 #include <pcl/visualization/cloud_viewer.h>
@@ -434,6 +435,7 @@ private:
 public:
     MapMatching() : nh("~")
     {
+        subSegmentedCloud = nh.subscribe<sensor_msgs::PointCloud2>("/segmented_cloud", 1, &MapMatching::cloudHandler, this);
         subLaserCloud = nh.subscribe<sensor_msgs::PointCloud2>(pointCloudTopic, 1, &MapMatching::cloudHandler, this);
 
         pubFullCloud = nh.advertise<sensor_msgs::PointCloud2>("/full_cloud_projected", 1);
@@ -452,7 +454,7 @@ public:
 
         allocateMemory();
     }
-    ~MapMatching(){}
+    ~MapMatching() {}
 
     void cloudHandler(const sensor_msgs::PointCloud2ConstPtr &laserCloudMsg)
     {
@@ -494,6 +496,7 @@ public:
     }
 };
 
+// ********以下无需更改********
 int main(int argc, char** argv){
 
     ros::init(argc, argv, "lego_loam");
