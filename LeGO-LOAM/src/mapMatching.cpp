@@ -1,12 +1,12 @@
 // todo: 地图匹配
-// 测试中
+// !测试中
 # include "utility.h"
 
 class MapMatching{
     private:
     public:
-    
-}
+};
+
 int main(int argc, char** argv){
 
     ros::init(argc, argv, "lego_loam");
