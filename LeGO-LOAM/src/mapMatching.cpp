@@ -27,6 +27,8 @@ private:
 public:
     MapMatching() : nh("~")
     {
+        // 读入点云地图
+        loadMap();
         // 订阅地面分割后的点云，调用函数
         subSegmentedCloud = nh.subscribe<sensor_msgs::PointCloud2>("/segmented_cloud", 1, &MapMatching::cloudHandler, this);
         // subLaserCloud = nh.subscribe<sensor_msgs::PointCloud2>(pointCloudTopic, 1, &MapMatching::cloudHandler, this);
@@ -114,8 +116,6 @@ int main(int argc, char **argv)
 {
     ros::init(argc, argv, "lego_loam");
 
-    // 读入点云地图
-    loadMap();
     // 在类的构造函数中完成地图匹配
     MapMatching MM;
 
