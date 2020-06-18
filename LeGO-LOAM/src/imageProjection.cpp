@@ -227,6 +227,7 @@ public:
             }
             else{
                 verticalAngle = atan2(thisPoint.z, sqrt(thisPoint.x * thisPoint.x + thisPoint.y * thisPoint.y)) * 180 / M_PI;
+                // *Original
                 // rowIdn = (verticalAngle + ang_bottom) / ang_res_y;
                 // *RS-LiDAR-32
                 int tmp = round(verticalAngle);
@@ -287,6 +288,7 @@ public:
                     continue;
                 }
             }
+            // *Original
             // if (rowIdn < 0 || rowIdn >= N_SCAN)
             //     continue;
 
