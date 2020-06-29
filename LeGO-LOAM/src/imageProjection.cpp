@@ -208,6 +208,7 @@ public:
         segMsg.orientationDiff = segMsg.endOrientation - segMsg.startOrientation;
     }
 
+    // 投影点云，判断点云中的点属于哪一条扫描线
     void projectPointCloud(){
         // range image projection
         float verticalAngle, horizonAngle, range;
@@ -226,8 +227,11 @@ public:
                 rowIdn = laserCloudInRing->points[i].ring;
             }
             else{
+                // 计算竖直方向上的角度
                 verticalAngle = atan2(thisPoint.z, sqrt(thisPoint.x * thisPoint.x + thisPoint.y * thisPoint.y)) * 180 / M_PI;
                 // *Original
+                // 计算出该点是激光雷达竖直方向上第几线
+                // 最下面一条为第0线
                 // rowIdn = (verticalAngle + ang_bottom) / ang_res_y;
                 // *RS-LiDAR-32
                 int tmp = round(verticalAngle);
@@ -336,7 +340,9 @@ public:
                     groundMat.at<int8_t>(i,j) = -1;
                     continue;
                 }
-                    
+                // 由上下两线之间点的XYZ位置得到两线之间的俯仰角
+                // 如果俯仰角在10度以内，则判定(i, j)为地面点，groundMat[i][j] = 1
+                // 否则，则不是地面点，进行后续操作
                 diffX = fullCloud->points[upperInd].x - fullCloud->points[lowerInd].x;
                 diffY = fullCloud->points[upperInd].y - fullCloud->points[lowerInd].y;
                 diffZ = fullCloud->points[upperInd].z - fullCloud->points[lowerInd].z;
@@ -430,7 +436,7 @@ public:
     void labelComponents(int row, int col){
         // use std::queue std::vector std::deque will slow the program down greatly
         float d1, d2, alpha, angle;
-        int fromIndX, fromIndY, thisIndX, thisIndY; 
+        int fromIndX, fromIndY, thisIndX, thisIndY;
         bool lineCountFlag[N_SCAN] = {false};
 
         queueIndX[0] = row;
@@ -442,13 +448,16 @@ public:
         allPushedIndX[0] = row;
         allPushedIndY[0] = col;
         int allPushedIndSize = 1;
-        
+        // ?标准的BFS
+        // BFS的作用是以(row, col)为中心向外扩散
+        // 判断(row, col)是否是这个平面中一点
         while(queueSize > 0){
             // Pop point
             fromIndX = queueIndX[queueStartInd];
             fromIndY = queueIndY[queueStartInd];
             --queueSize;
             ++queueStartInd;
+            // labelCount的初始值为1，后面会递增
             // Mark popped point
             labelMat.at<int>(fromIndX, fromIndY) = labelCount;
             // Loop through all the neighboring grids of popped grid
@@ -499,21 +508,25 @@ public:
 
         // check if this segment is valid
         bool feasibleSegment = false;
+        // 如果聚类超过30个点，直接标记为一个可用聚类，labelCount需要递增
         if (allPushedIndSize >= 30)
             feasibleSegment = true;
         else if (allPushedIndSize >= segmentValidPointNum){
+            // 如果聚类点数小于30大于等于5，统计竖直方向上的聚类点数
             int lineCount = 0;
             for (size_t i = 0; i < N_SCAN; ++i)
                 if (lineCountFlag[i] == true)
                     ++lineCount;
+            // 竖直方向上超过3个也将它标记为有效聚类
             if (lineCount >= segmentValidLineNum)
-                feasibleSegment = true;            
+                feasibleSegment = true;
         }
         // segment is valid, mark these points
         if (feasibleSegment == true){
             ++labelCount;
         }else{ // segment is invalid, mark these points
             for (size_t i = 0; i < allPushedIndSize; ++i){
+                // 标记为999999的是需要舍弃的聚类的点，因为他们的数量小于30个
                 labelMat.at<int>(allPushedIndX[i], allPushedIndY[i]) = 999999;
             }
         }

@@ -617,7 +617,8 @@ public:
 
         imuPointerLastIteration = imuPointerLast;
     }
-
+    // 计算光滑度
+    // !与论文不一致，缺少除以总点数i和r[i]
     void calculateSmoothness()
     {
         int cloudSize = segmentedCloud->points.size();
@@ -631,8 +632,11 @@ public:
                             + segInfo.segmentedCloudRange[i+5];            
 
             cloudCurvature[i] = diffRange*diffRange;
-
+            // 在markOccludedPoints()函数中对该参数进行重新修改
             cloudNeighborPicked[i] = 0;
+            // 在extractFeatures()函数中会对标签进行修改
+            // 初始化为0，surfPointsFlag标记为-1，surfPointsLessFlatScan为不大于0的标签
+            // cornerPointsSharp标记为2，cornerPointsLessSharp标记为1
             cloudLabel[i] = 0;
 
             cloudSmoothness[i].value = cloudCurvature[i];

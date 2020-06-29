@@ -799,6 +799,7 @@ public:
         // globalMapKeyFramesDS->clear();     
     }
 
+    // 回环检测线程
     void loopClosureThread(){
 
         if (loopClosureEnableFlag == false)
@@ -811,12 +812,15 @@ public:
         }
     }
 
+    // 检测回环
     bool detectLoopClosure(){
 
         latestSurfKeyFrameCloud->clear();
         nearHistorySurfKeyFrameCloud->clear();
         nearHistorySurfKeyFrameCloudDS->clear();
 
+        // 资源分配时初始化
+        // 在互斥量析构前不解锁
         std::lock_guard<std::mutex> lock(mtx);
         // find the closest history key frame
         std::vector<int> pointSearchIndLoop;
@@ -871,14 +875,14 @@ public:
         return true;
     }
 
-
+    // 进行回环检测
     void performLoopClosure(){
 
         if (cloudKeyPoses3D->points.empty() == true)
             return;
         // try to find close key frame if there are any
         if (potentialLoopFlag == false){
-
+            // 检测回环
             if (detectLoopClosure() == true){
                 potentialLoopFlag = true; // find some key frames that is old enough or close enough for loop closure
                 timeSaveFirstCurrentScanForLoopClosure = timeLaserOdometry;
@@ -888,19 +892,24 @@ public:
         }
         // reset the flag first no matter icp successes or not
         potentialLoopFlag = false;
+        // ICP匹配
         // ICP Settings
         pcl::IterativeClosestPoint<PointType, PointType> icp;
         icp.setMaxCorrespondenceDistance(100);
         icp.setMaximumIterations(100);
         icp.setTransformationEpsilon(1e-6);
         icp.setEuclideanFitnessEpsilon(1e-6);
+        // 设置RANSAC运行次数
         icp.setRANSACIterations(0);
         // Align clouds
         icp.setInputSource(latestSurfKeyFrameCloud);
+        // 使用detectLoopClosure()函数中下采样刚刚更新nearHistorySurfKeyFrameCloudDS
         icp.setInputTarget(nearHistorySurfKeyFrameCloudDS);
         pcl::PointCloud<PointType>::Ptr unused_result(new pcl::PointCloud<PointType>());
+        // 进行ICP点云对齐
         icp.align(*unused_result);
-
+         
+        // 分数高代表噪声太多
         if (icp.hasConverged() == false || icp.getFitnessScore() > historyKeyframeFitnessScore)
             return;
         // publish corrected cloud
@@ -936,6 +945,7 @@ public:
         	add constraints
         	*/
         std::lock_guard<std::mutex> lock(mtx);
+        // gtsam优化
         gtSAMgraph.add(BetweenFactor<Pose3>(latestFrameIDLoopCloure, closestHistoryFrameID, poseFrom.between(poseTo), constraintNoise));
         isam->update(gtSAMgraph);
         isam->update();
@@ -1090,6 +1100,7 @@ public:
         laserCloudSurfTotalLastDSNum = laserCloudSurfTotalLastDS->points.size();
     }
 
+    // 两次优化（1/2）
     void cornerOptimization(int iterCount){
 
         updatePointAssociateToMapSinCos();
@@ -1173,6 +1184,7 @@ public:
         }
     }
 
+    // 两次优化（2/2）
     void surfOptimization(int iterCount){
         updatePointAssociateToMapSinCos();
         for (int i = 0; i < laserCloudSurfTotalLastDSNum; i++) {
@@ -1226,6 +1238,8 @@ public:
         }
     }
 
+    // !这部分的代码是基于高斯牛顿法的优化，不是Zhang Ji论文中提到的基于L-M的优化方法
+    // !这部分的代码使用旋转矩阵对欧拉角求导，优化欧拉角，不是ZHang Ji论文中提到的使用angle-axis的优化
     bool LMOptimization(int iterCount){
         float srx = sin(transformTobeMapped[0]);
         float crx = cos(transformTobeMapped[0]);
@@ -1273,6 +1287,8 @@ public:
         cv::transpose(matA, matAt);
         matAtA = matAt * matA;
         matAtB = matAt * matB;
+        // 利用高斯牛顿法进行求解
+        // 通过QR分解的方式，求解matAtA * matX = matAtB，得到解matX
         cv::solve(matAtA, matAtB, matX, cv::DECOMP_QR);
 
         if (iterCount == 0) {
