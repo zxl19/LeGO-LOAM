@@ -1358,7 +1358,7 @@ public:
                 surfOptimization(iterCount);
 
                 if (LMOptimization(iterCount) == true)
-                    break;              
+                    break;
             }
 
             transformUpdate();
@@ -1379,7 +1379,7 @@ public:
             saveThisKeyFrame = false;
         }
 
-        
+
 
         if (saveThisKeyFrame == false && !cloudKeyPoses3D->points.empty())
         	return;
