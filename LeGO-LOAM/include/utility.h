@@ -25,7 +25,7 @@
 
 #include <tf/transform_broadcaster.h>
 #include <tf/transform_datatypes.h>
- 
+
 #include <vector>
 #include <cmath>
 #include <algorithm>
@@ -52,6 +52,7 @@ typedef pcl::PointXYZI  PointType;
 
 extern const string pointCloudTopic = "/middle/rslidar_points";
 extern const string imuTopic = "/ox_imu/data";
+extern const string gpsTopic = "/gps/fix"; // GPS话题
 
 // *Save pcd
 extern const string fileDirectory = "/tmp/";

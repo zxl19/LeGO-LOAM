@@ -76,6 +76,7 @@ private:
     ros::Subscriber subOutlierCloudLast;
     ros::Subscriber subLaserOdometry;
     ros::Subscriber subImu;
+    ros::Subscriber subGps;
 
     nav_msgs::Odometry odomAftMapped;
     tf::StampedTransform aftMappedTrans;
@@ -240,6 +241,8 @@ public:
         subOutlierCloudLast = nh.subscribe<sensor_msgs::PointCloud2>("/outlier_cloud_last", 2, &mapOptimization::laserCloudOutlierLastHandler, this);
         subLaserOdometry = nh.subscribe<nav_msgs::Odometry>("/laser_odom_to_init", 5, &mapOptimization::laserOdometryHandler, this);
         subImu = nh.subscribe<sensor_msgs::Imu> (imuTopic, 50, &mapOptimization::imuHandler, this);
+        subGps = nh.subscribe<sensor_msgs::Imu> (gpsTopic, 50, &mapOptimization::gpsHandler, this); // 订阅GPS话题
+
 
         pubHistoryKeyFrames = nh.advertise<sensor_msgs::PointCloud2>("/history_cloud", 2);
         pubIcpKeyFrames = nh.advertise<sensor_msgs::PointCloud2>("/corrected_cloud", 2);
@@ -274,7 +277,7 @@ public:
         kdtreeHistoryKeyPoses.reset(new pcl::KdTreeFLANN<PointType>());
 
         surroundingKeyPoses.reset(new pcl::PointCloud<PointType>());
-        surroundingKeyPosesDS.reset(new pcl::PointCloud<PointType>());        
+        surroundingKeyPosesDS.reset(new pcl::PointCloud<PointType>());
 
         laserCloudCornerLast.reset(new pcl::PointCloud<PointType>()); // corner feature set from odoOptimization
         laserCloudSurfLast.reset(new pcl::PointCloud<PointType>()); // surf feature set from odoOptimization
@@ -651,6 +654,19 @@ public:
         imuPitch[imuPointerLast] = pitch;
     }
 
+    void gpsHandler(const sensor_msgs::Imu::ConstPtr& gpsIn){
+        // 查找ROS中GPS的消息类型，转UTM，之后定义因子，外参转换LiDAR->GPS(IMU)，初始化，加入
+        double lon, lat, alt;
+        tf::Quaternion orientation;
+        tf::quaternionMsgToTF(gpsIn->orientation, orientation);
+        tf::Matrix3x3(orientation).getRPY(roll, pitch, yaw);
+        gpsPointerLast = (gpsPointerLast + 1) % gpsQueLength;
+        gpsTime[gpsPointerLast] = gpsIn->header.stamp.toSec();
+        gpsRoll[gpsPointerLast] = roll;
+        gpsPitch[gpsPointerLast] = pitch;
+    }
+
+
     void publishTF(){
 
         geometry_msgs::Quaternion geoQuat = tf::createQuaternionMsgFromRollPitchYaw
@@ -718,7 +734,7 @@ public:
             cloudMsgTemp.header.stamp = ros::Time().fromSec(timeLaserOdometry);
             cloudMsgTemp.header.frame_id = "/camera_init";
             pubRegisteredCloud.publish(cloudMsgTemp);
-        } 
+        }
     }
 
     void visualizeGlobalMapThread(){
@@ -786,17 +802,17 @@ public:
 	    // downsample visualized points
         downSizeFilterGlobalMapKeyFrames.setInputCloud(globalMapKeyFrames);
         downSizeFilterGlobalMapKeyFrames.filter(*globalMapKeyFramesDS);
- 
+
         sensor_msgs::PointCloud2 cloudMsgTemp;
         pcl::toROSMsg(*globalMapKeyFramesDS, cloudMsgTemp);
         cloudMsgTemp.header.stamp = ros::Time().fromSec(timeLaserOdometry);
         cloudMsgTemp.header.frame_id = "/camera_init";
-        pubLaserCloudSurround.publish(cloudMsgTemp);  
+        pubLaserCloudSurround.publish(cloudMsgTemp);
 
         globalMapKeyPoses->clear();
         globalMapKeyPosesDS->clear();
         globalMapKeyFrames->clear();
-        // globalMapKeyFramesDS->clear();     
+        // globalMapKeyFramesDS->clear();
     }
 
     // 回环检测线程

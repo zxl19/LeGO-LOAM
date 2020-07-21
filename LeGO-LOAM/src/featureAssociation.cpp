@@ -629,11 +629,11 @@ public:
                             + segInfo.segmentedCloudRange[i-1] - segInfo.segmentedCloudRange[i] * 10
                             + segInfo.segmentedCloudRange[i+1] + segInfo.segmentedCloudRange[i+2]
                             + segInfo.segmentedCloudRange[i+3] + segInfo.segmentedCloudRange[i+4]
-                            + segInfo.segmentedCloudRange[i+5];            
+                            + segInfo.segmentedCloudRange[i+5];
             // *Original
-            // cloudCurvature[i] = diffRange*diffRange;
+            cloudCurvature[i] = diffRange*diffRange;
             // *According to paper
-            cloudCurvature[i] = abs(diffRange) / (10 * abs(segInfo.segmentedCloudRange[i]));
+            // cloudCurvature[i] = abs(diffRange) / (10 * abs(segInfo.segmentedCloudRange[i]));
             // 在markOccludedPoints()函数中对该参数进行重新修改
             cloudNeighborPicked[i] = 0;
             // 在extractFeatures()函数中会对标签进行修改
