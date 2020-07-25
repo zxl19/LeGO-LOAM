@@ -212,7 +212,7 @@ public:
     void projectPointCloud(){
         // range image projection
         float verticalAngle, horizonAngle, range;
-        size_t rowIdn, columnIdn, index, cloudSize; 
+        size_t rowIdn, columnIdn, index, cloudSize;
         PointType thisPoint;
 
         cloudSize = laserCloudIn->points.size();
