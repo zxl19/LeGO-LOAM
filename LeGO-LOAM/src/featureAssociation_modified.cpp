@@ -556,12 +556,12 @@ public:
 
                     imuShiftXCur = imuShiftX[imuPointerFront];
                     imuShiftYCur = imuShiftY[imuPointerFront];
-                    imuShiftZCur = imuShiftZ[imuPointerFront];   
+                    imuShiftZCur = imuShiftZ[imuPointerFront];
                 } else {
                     int imuPointerBack = (imuPointerFront + imuQueLength - 1) % imuQueLength;
-                    float ratioFront = (timeScanCur + pointTime - imuTime[imuPointerBack]) 
+                    float ratioFront = (timeScanCur + pointTime - imuTime[imuPointerBack])
                                                      / (imuTime[imuPointerFront] - imuTime[imuPointerBack]);
-                    float ratioBack = (imuTime[imuPointerFront] - timeScanCur - pointTime) 
+                    float ratioBack = (imuTime[imuPointerFront] - timeScanCur - pointTime)
                                                     / (imuTime[imuPointerFront] - imuTime[imuPointerBack]);
 
                     imuRollCur = imuRoll[imuPointerFront] * ratioFront + imuRoll[imuPointerBack] * ratioBack;
@@ -602,9 +602,9 @@ public:
                         imuAngularRotationZCur = imuAngularRotationZ[imuPointerFront];
                     }else{
                         int imuPointerBack = (imuPointerFront + imuQueLength - 1) % imuQueLength;
-                        float ratioFront = (timeScanCur + pointTime - imuTime[imuPointerBack]) 
+                        float ratioFront = (timeScanCur + pointTime - imuTime[imuPointerBack])
                                                          / (imuTime[imuPointerFront] - imuTime[imuPointerBack]);
-                        float ratioBack = (imuTime[imuPointerFront] - timeScanCur - pointTime) 
+                        float ratioBack = (imuTime[imuPointerFront] - timeScanCur - pointTime)
                                                         / (imuTime[imuPointerFront] - imuTime[imuPointerBack]);
                         imuAngularRotationXCur = imuAngularRotationX[imuPointerFront] * ratioFront + imuAngularRotationX[imuPointerBack] * ratioBack;
                         imuAngularRotationYCur = imuAngularRotationY[imuPointerFront] * ratioFront + imuAngularRotationY[imuPointerBack] * ratioBack;
