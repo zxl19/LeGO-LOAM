@@ -16,6 +16,10 @@ This repository contains code for a lightweight and ground optimized lidar odome
     <img src="/LeGO-LOAM/launch/demo.gif" alt="drawing" width="800"/>
 </p>
 
+## Lidar-inertial Odometry
+
+An updated lidar-initial odometry package, [LIO-SAM](https://github.com/TixiaoShan/LIO-SAM), has been open-sourced and available for testing.
+
 ## Dependency
 
 - [ROS](http://wiki.ros.org/ROS/Installation) (tested with indigo, kinetic, and melodic)
@@ -85,7 +89,7 @@ extern const float ang_bottom = 30.666666;
 extern const int groundScanInd = 20;
 ```
 
-**New**: a new **useCloudRing** flag has been added to help with point cloud projection. Velodyne point cloud has "ring" channel that directly gives the point row id in a range image. Other lidars may have a same type of channel, i.e., "r" in Ouster. If you are using a non-Velodyne lidar but it has a similar "ring" channel, you can change the PointXYZIR definition in utility.h and the corresponding code in imageProjection.cpp.
+**New**: a new **useCloudRing** flag has been added to help with point cloud projection (i.e., VLP-32C, VLS-128). Velodyne point cloud has "ring" channel that directly gives the point row id in a range image. Other lidars may have a same type of channel, i.e., "r" in Ouster. If you are using a non-Velodyne lidar but it has a similar "ring" channel, you can change the PointXYZIR definition in utility.h and the corresponding code in imageProjection.cpp.
 
 For **KITTI** users, if you want to use our algorithm with  **HDL-64e**, you need to write your own implementation for such projection. If the point cloud is not projected properly, you will lose many points and performance.
 
